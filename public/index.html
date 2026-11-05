@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Voice2Issue</title>
+  <meta name="description" content="Dicte une idée, crée une issue GitHub.">
+  <!-- Leave empty when the PWA is served by the Worker itself. -->
+  <meta name="api-base" content="">
+  <meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16161a" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <!-- First launch: APP_TOKEN entry -->
+  <main id="setup" class="screen" hidden>
+    <div class="setup-card">
+      <h1>Voice2Issue</h1>
+      <p>Saisis le jeton d'application (<code>APP_TOKEN</code>) une seule fois. Il reste sur ce téléphone.</p>
+      <form id="setup-form" autocomplete="off">
+        <label for="token-input">Jeton d'application</label>
+        <input id="token-input" type="password" required minlength="16" spellcheck="false"
+               autocapitalize="off" autocomplete="off" inputmode="text">
+        <button type="submit" class="btn btn-primary" id="setup-submit">Enregistrer</button>
+      </form>
+      <p id="setup-error" class="msg msg-error" role="alert" hidden></p>
+    </div>
+  </main>
+
+  <!-- Main screen -->
+  <main id="app" class="screen" hidden>
+    <header class="topbar">
+      <button id="repo-button" class="repo-button" type="button" aria-haspopup="dialog">
+        <span class="repo-label">Projet</span>
+        <span id="repo-name" class="repo-name">Chargement…</span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+      </button>
+      <button id="settings-button" class="icon-button" type="button" aria-label="Réglages">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+      </button>
+    </header>
+
+    <section class="mic-zone">
+      <button id="mic-button" class="mic" type="button" aria-pressed="false" aria-label="Démarrer la dictée">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="9" y="2.5" width="6" height="12" rx="3"/>
+          <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>
+        </svg>
+      </button>
+      <p id="mic-hint" class="mic-hint">Appuie pour dicter</p>
+    </section>
+
+    <section class="editor">
+      <label for="text" class="sr-only">Texte de l'issue</label>
+      <textarea id="text" rows="6" placeholder="Ta transcription apparaît ici. Tu peux la corriger avant l'envoi."></textarea>
+      <p id="interim" class="interim" aria-live="polite"></p>
+    </section>
+
+    <div id="status" class="msg" role="status" aria-live="polite" hidden></div>
+
+    <div id="success" class="success" hidden>
+      <p><strong id="success-title">Issue créée</strong></p>
+      <a id="success-link" href="#" target="_blank" rel="noopener noreferrer">Voir l'issue sur GitHub</a>
+    </div>
+
+    <footer class="actions">
+      <button id="send-button" class="btn btn-primary btn-large" type="button" disabled>Créer l'issue</button>
+    </footer>
+  </main>
+
+  <!-- Repo picker -->
+  <dialog id="picker" class="sheet" aria-label="Choisir un projet">
+    <div class="sheet-head">
+      <input id="picker-search" type="search" placeholder="Rechercher un dépôt…" autocomplete="off"
+             autocapitalize="off" spellcheck="false" enterkeyhint="go">
+      <button id="picker-refresh" class="icon-button" type="button" aria-label="Rafraîchir la liste">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+      </button>
+      <button id="picker-close" class="icon-button" type="button" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <ul id="picker-list" class="picker-list" role="listbox"></ul>
+    <p id="picker-empty" class="picker-empty" hidden>Aucun dépôt trouvé.</p>
+  </dialog>
+
+  <!-- Settings -->
+  <dialog id="settings" class="sheet sheet-small" aria-label="Réglages">
+    <h2>Réglages</h2>
+    <button id="reset-token" class="btn" type="button">Changer le jeton d'application</button>
+    <button id="settings-close" class="btn btn-ghost" type="button">Fermer</button>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Copy to .dev.vars for local development only (never commit .dev.vars).
+# With the local mock (npm run mock), any values work.
+GITHUB_TOKEN=local-fake-github-token
+APP_TOKEN=local-dev-app-token-change-me
+GITHUB_API=http://localhost:8788

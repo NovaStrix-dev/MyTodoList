@@ -1,0 +1,16 @@
+{
+  "name": "voice2issue",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dictate an idea on Android and turn it into a GitHub issue",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "mock": "node test/mock-github.mjs",
+    "test": "node --test test/text.test.mjs && node test/smoke.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.157.0"
+  }
+}
