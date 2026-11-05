@@ -13,9 +13,11 @@ Flux visé :
 
 ## État d'avancement (05/11/2026)
 
+- **Statut** : ✅ en production. Déployée sur Cloudflare, installée sur Android, parcours complet validé (dictée réelle incluse).
+- **URL de l'app** : https://voice2issue.novastrix.workers.dev
 - **Code** : terminé et testé en local (Worker + PWA + tests).
 - **Dépôt** : https://github.com/NovaStrix-dev/MyTodoList, branche `main`. Ce fichier y est versionné dans `docs/project.md`.
-- **Reste à faire (moi)** : créer le token GitHub, générer l'`APP_TOKEN`, déployer, déclarer les secrets, installer sur Android et valider la dictée réelle. Procédure dans le `README.md`.
+- **Reste à faire** : rien d'obligatoire. Penser à la rotation du token GitHub avant son expiration (voir « Maintenance »).
 
 ## Décisions déjà prises
 
@@ -23,9 +25,10 @@ Flux visé :
 - **Destination** : création d'issues GitHub (pas de fichier TODO.md).
 - **Projets concernés** : tous les dépôts de mon compte GitHub (`affiliation=owner`, archivés exclus).
 - **Choix du projet** : sélecteur dans l'app. Pas d'API Anthropic ni de détection automatique dans la phrase.
-- **Hébergement** : Cloudflare (compte gratuit déjà créé). Objectif : coût 0 €.
+- **Hébergement** : Cloudflare (compte gratuit). Objectif : coût 0 €.
   - Fonction serveur : Cloudflare Workers (offre gratuite : 100 000 requêtes par jour).
   - App web : servie par le même Worker (static assets). Les requêtes vers les static assets sont gratuites et illimitées ; seuls les appels `/api/*` comptent (1 à l'ouverture + 1 par issue).
+  - Sous-domaine `workers.dev` : `novastrix` (enregistré lors du premier déploiement).
 - **Dictée** : Web Speech API du navigateur (gratuit), langue `fr-FR`.
 
 ## Architecture
@@ -93,9 +96,23 @@ Les deux routes exigent l'en-tête `Authorization: Bearer <APP_TOKEN>`. Le Worke
 2. ✅ Implémenter le Worker : authentification, `GET /api/repos`, `POST /api/issues`, gestion d'erreurs.
 3. ✅ Construire la PWA : sélecteur, dictée, édition, envoi, manifeste, service worker.
 4. ✅ Tester en local (`wrangler dev`) avec un faux GitHub (13 tests de bout en bout + tests unitaires). Test contre un vrai dépôt de test possible via `.dev.vars`.
-5. ⏳ Me guider pas à pas pour : créer le token GitHub fine-grained, générer l'`APP_TOKEN`, déclarer les secrets, déployer (`wrangler deploy`). Instructions dans le `README.md`.
-6. ⏳ Installer l'app sur mon Android et valider le parcours complet (dictée réelle non testable hors téléphone).
+5. ✅ Créer le token GitHub fine-grained, générer l'`APP_TOKEN`, déclarer les secrets, déployer (`wrangler deploy`) — fait le 05/11/2026.
+6. ✅ Installer l'app sur Android et valider le parcours complet (dictée réelle) — fait le 05/11/2026.
 7. ✅ Rédiger un `README.md` court : déploiement, rotation des tokens, dépannage.
+
+## Maintenance
+
+- **Rotation du token GitHub** : générer un nouveau token fine-grained (mêmes permissions), puis `npx wrangler secret put GITHUB_TOKEN`. Pas de redéploiement nécessaire. Noter ici sa date d'expiration : `____`.
+- **Rotation de l'`APP_TOKEN`** : générer une nouvelle valeur (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), puis `npx wrangler secret put APP_TOKEN`, et la ressaisir dans l'app (⚙).
+- **Redéploiement** : `npx wrangler deploy` depuis le dossier du projet.
+
+## Dépannage (retours du premier déploiement)
+
+- **Première commande `wrangler deploy`** : Wrangler demande d'enregistrer un sous-domaine `workers.dev`. Répondre `Y` et choisir un nom unique. Il est public (visible dans l'URL).
+- **URL « page inaccessible » juste après le déploiement** : délai DNS normal (quelques minutes). Réessayer en navigation privée ou en 4G.
+- **Micro refusé sur Android** : le réglage se fait dans Chrome (⋮ → Paramètres → Paramètres des sites → Micro, vérifier que le site n'est pas dans « Bloqué »), et dans Android (Applications → Chrome → Autorisations → Micro). Une PWA installée n'a pas toujours son propre réglage micro.
+- **`APP_TOKEN` à ressaisir** : normal après une réinstallation de la PWA, une réinitialisation des autorisations ou un effacement des données du site (le token est dans le localStorage, séparé entre Chrome et la PWA installée).
+- **Générer l'`APP_TOKEN` sous Windows** : `openssl` n'est pas disponible par défaut, utiliser la commande Node ci-dessus.
 
 ## Évolutions possibles (hors périmètre initial)
 
